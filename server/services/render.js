@@ -42,14 +42,13 @@ exports.dosage= function(req, res) {
         })
 }
 
-exports.purchase= function(req, res) {
-    // Make a get request to /api/users
-    axios.get(`${BASE_URI}:${PORT}/api/drugs`)//get request to pull drugs
-        .then(function(response){
-            res.render('purchase', { drugs : response.data, title: 'Purchase Drugs' });// response from API request stored as drugs to display on manage.ejs
-        })
-        .catch(err =>{
-            res.send(err);
-        })
+exports.purchase = function(req, res) {
+  axios.get(`${BASE_URI}:${PORT}/api/drugs`)
+    .then(function(response){
+      // truyền days mặc định = 30 để view không bị undefined
+      res.render('purchase', { drugs : response.data, title: 'Purchase Drugs', days: 30 });
+    })
+    .catch(err =>{
+      res.send(err);
+    })
 }
-

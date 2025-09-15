@@ -10,6 +10,8 @@ const PORT = process.env.PORT || 3100; //uses either what's in our env or 3100 a
 app.set('view engine', 'ejs');//Put before app.use, etc. Lets us use EJS for views
 //use body-parser to parse requests
 app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.json()); // để parse JSON
+
 //indicates which is the folder where static files are served from
 app.use(express.static('assets'));
 //use morgan to log http requests
@@ -19,10 +21,28 @@ app.use(morgan('tiny'));
 connectMongo(); 
 
 //load the routes
+
 app.use('/',require('./server/routes/routes'));//Pulls the routes file whenever this is loaded
 
 
-app.listen(PORT, function() {//specifies port to listen on
-	console.log('listening on '+ PORT);
-	console.log(`Welcome to the Drug Monitor App at http://localhost:${PORT}`);
-})
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// Error handling middleware (luôn phải đặt CUỐI CÙNG)
+app.use((err, req, res, next) => {
+  console.error(err.message);
+
+  // Nếu request là từ Postman (API) → trả JSON
+  if (req.headers.accept && req.headers.accept.includes("application/json")) {
+    return res.status(400).json({ message: err.message });
+  }
+
+  // Nếu request từ web (browser form) → render ra error.ejs
+  res.status(400).render("error", { message: err.message, title: "Error" });
+});
+
+
+app.listen(PORT, function () {
+  console.log('listening on ' + PORT);
+  console.log(`Welcome to the Drug Monitor App at http://localhost:${PORT}`);
+});
